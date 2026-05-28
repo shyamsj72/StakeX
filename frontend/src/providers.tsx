@@ -3,11 +3,13 @@
 import * as React from "react";
 import '@rainbow-me/rainbowkit/styles.css';
 import {
-  getDefaultConfig,
   RainbowKitProvider,
   darkTheme,
+  connectorsForWallets,
+  Wallet
 } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+import { injectedWallet } from '@rainbow-me/rainbowkit/wallets';
+import { createConfig, http, WagmiProvider } from 'wagmi';
 import {
   mainnet,
   sepolia,
@@ -18,10 +20,39 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
-const config = getDefaultConfig({
-  appName: 'SCAI StakeX',
-  projectId: 'c037803baee8e59ec217c46014e3ce18', // Valid demo WalletConnect project ID
+// Custom MetaMask wallet that bypasses WalletConnect completely
+const customMetaMaskWallet = (): Wallet => {
+  const injected = injectedWallet();
+  return {
+    ...injected,
+    id: 'metamask',
+    name: 'MetaMask',
+    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
+    iconBackground: '#fff',
+  };
+};
+
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [customMetaMaskWallet],
+    },
+  ],
+  {
+    appName: 'SCAI StakeX',
+    projectId: 'c037803baee8e59ec217c46014e3ce18', 
+  }
+);
+
+const config = createConfig({
+  connectors,
   chains: [hardhat, sepolia, mainnet],
+  transports: {
+    [hardhat.id]: http(),
+    [sepolia.id]: http(),
+    [mainnet.id]: http(),
+  },
   ssr: true,
 });
 
