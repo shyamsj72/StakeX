@@ -9,9 +9,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import {
-  mainnet,
   sepolia,
-  hardhat,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -21,7 +19,7 @@ import {
 const config = getDefaultConfig({
   appName: 'SCAI StakeX',
   projectId: '21fef48091f12692cad574a6f7753643', // A highly available demo WalletConnect ID
-  chains: [hardhat, sepolia, mainnet],
+  chains: [sepolia],
   ssr: true,
 });
 
