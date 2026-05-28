@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, usePublicClient } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { CONTRACT_ADDRESSES, STAKING_PLATFORM_ABI, STAKE_TOKEN_ABI } from "@/config/contracts";
 import toast from "react-hot-toast";
@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const { address, isConnected } = useAccount();
+  const publicClient = usePublicClient();
   const [amount, setAmount] = useState("");
   const [selectedTier, setSelectedTier] = useState(0);
   const [currentTimestamp, setCurrentTimestamp] = useState(Math.floor(Date.now() / 1000));
@@ -55,27 +56,38 @@ export default function Dashboard() {
       return;
     }
 
+    if (!publicClient) {
+      toast.error("Network not ready");
+      return;
+    }
+
     try {
-      const toastId = toast.loading("Approving tokens...");
+      const toastId = toast.loading("Approving tokens in MetaMask...");
       const parsedAmount = parseUnits(amount, 18);
       
       // First Approve
-      await writeContractAsync({
+      const approveHash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.stakeToken as `0x${string}`,
         abi: STAKE_TOKEN_ABI,
         functionName: "approve",
         args: [CONTRACT_ADDRESSES.stakingPlatform as `0x${string}`, parsedAmount],
       });
 
-      toast.loading("Staking tokens...", { id: toastId });
+      toast.loading("Waiting for approval on blockchain (~12s)...", { id: toastId });
+      await publicClient.waitForTransactionReceipt({ hash: approveHash });
+
+      toast.loading("Confirming stake in MetaMask...", { id: toastId });
 
       // Then Stake
-      await writeContractAsync({
+      const stakeHash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.stakingPlatform as `0x${string}`,
         abi: STAKING_PLATFORM_ABI,
         functionName: "stake",
         args: [parsedAmount, BigInt(selectedTier)],
       });
+
+      toast.loading("Waiting for stake confirmation (~12s)...", { id: toastId });
+      await publicClient.waitForTransactionReceipt({ hash: stakeHash });
 
       toast.success("Successfully staked!", { id: toastId });
       setAmount("");
