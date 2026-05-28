@@ -1,6 +1,10 @@
 # SCAI StakeX - DeFi Staking Platform
 
+**🚀 Live Deployment:** [https://stake-x-nu.vercel.app](https://stake-x-nu.vercel.app)
+
 SCAI StakeX is a complete full-stack DeFi staking platform built for production. Users can connect their wallets, stake ERC20 tokens into multi-tier pools, earn time-based rewards, and unstake seamlessly. 
+
+![Dashboard UI Mockup](file:///C:/Users/shyam/.gemini/antigravity-ide/brain/ba41fef6-8ca4-4d4f-93f0-71c16a8351aa/dashboard_ui_mockup_1779972268869.png)
 
 The project features a highly modern, futuristic dark theme with fluid animations and a responsive dashboard.
 
