@@ -16,14 +16,19 @@ export default function Dashboard() {
   const publicClient = usePublicClient();
   const [amount, setAmount] = useState("");
   const [selectedTier, setSelectedTier] = useState(0);
-  const [currentTimestamp, setCurrentTimestamp] = useState(Math.floor(Date.now() / 1000));
+  const [currentTimestamp, setCurrentTimestamp] = useState(0); // Initialize to 0 for server render
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setCurrentTimestamp(Math.floor(Date.now() / 1000)); // Set client timestamp
     const interval = setInterval(() => {
       setCurrentTimestamp(Math.floor(Date.now() / 1000));
     }, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!mounted) return null;
 
   // Read User Balance
   const { data: balanceData, refetch: refetchBalance } = useReadContract({
