@@ -28,8 +28,6 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!mounted) return null;
-
   // Read User Balance
   const { data: balanceData, refetch: refetchBalance } = useReadContract({
     address: CONTRACT_ADDRESSES.stakeToken as `0x${string}`,
@@ -172,6 +170,8 @@ export default function Dashboard() {
       }
     }
   });
+
+  if (!mounted) return null;
 
   return (
     <div className="container max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
